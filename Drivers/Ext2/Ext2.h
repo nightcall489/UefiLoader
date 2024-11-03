@@ -9,11 +9,57 @@
 #ifndef __EFI_DRV_EXT2_H__
 #define __EFI_DRV_EXT2_H__
 
-/*=== Includes =============================================================*/
+/*=== Includes ==============================================================*/
 
 #include <Uefi.h>
 
 #include <Library/UefiLib.h>
 #include <Library/UefiDriverEntryPoint.h>
+
+/*=== Macros and Constants ==================================================*/
+
+#ifndef size_assert
+#define size_assert( obj, size ) \
+   typedef char obj##_size_off_[ ( !! ( sizeof( obj ) == size ) ) * 2 - 1 ]
+#endif
+
+#define ERRPRINT(status) \
+   Print("Err: %r at %a:%d\n", status, __FILE__, __LINE__)
+
+#ifdef DEBUG
+#define CHECKSTRICT(status) if (EFI_ERROR(status)) { \
+   ErrPrint (status); \
+   return status }
+#else
+#define CHECKSTRICT(status) if (EFI_ERROR(status)) { \
+   return status }
+#endif
+
+#define EXT2_VOLUME_SIGNATURE SIGNATURE_32 ('e', 'x', 't', 'v')
+#define EXT2_DIR_SIGNATURE    SIGNATURE_32 ('e', 'x', 't', 'd')
+#define EXT2_FILE_SIGNATURE   SIGNATURE_32 ('e', 'x', 't', 'f')
+
+#define EXT2_PATH_SEPARATOR '/'
+
+/*=== Structures ============================================================*/
+
+typedef struct _EXT2_VOLUME EXT2_VOLUME;
+typedef struct _EXT2_CFILE EXT2C_FILE;
+typedef struct _EXT2_FILE EXT2_FILE;
+
+struct EXT2_VOLUME
+{
+
+};
+
+struct EXT2_CFILE
+{
+
+};
+
+struct EXT2_FILE
+{
+
+};
 
 #endif // __EFI_DRV_EXT2_H__

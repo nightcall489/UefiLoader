@@ -17,5 +17,14 @@
    UefiLib
 
 [Protocols]
+   gEfiDiskIoProtocolGuid
+   gEfiDiskIo2ProtocolGuid
+   gEfiBlockIoProtocolGuid
+   gEfiSimpleFileSystemProtocolGuid
+   gEfiComponentNameProtocolGuid
+   gEfiComponentName2ProtocolGuid
 
 [Guids]
+   gEfiFileInfoGuid
+   gEfiFileSystemInfoGuid
+   gEfiFileSystemVolumeLabelInfoIdGuid
