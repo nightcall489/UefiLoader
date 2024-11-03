@@ -1,0 +1,14 @@
+                                   UefiLoader
+                               ------------------
+
+This repository contains a UEFI bootloader for the Omicron kernel.
+Currently, only the following root file systems are supported:
+   * FAT [16|24|32]
+   * Ext2
+
+The bootloader is not capable of loading any other kernels, or chainloading
+other UEFI applications.
+
+Directory structure:
+   * Drivers - File system drivers
+   * BootMgr - Core bootloader
