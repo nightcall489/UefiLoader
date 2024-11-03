@@ -15,6 +15,11 @@
 
 #include <Library/UefiLib.h>
 #include <Library/UefiDriverEntryPoint.h>
+#include <Library/UefiBootServicesTableLib.h>
+
+#include <Protocol/DiskIo.h>
+#include <Protocol/DiskIo2.h>
+#include <Protocol/BlockIo.h>
 
 /*=== Macros and Constants ==================================================*/
 
@@ -29,10 +34,10 @@
 #ifdef DEBUG
 #define CHECKSTRICT(status) if (EFI_ERROR(status)) { \
    ErrPrint (status); \
-   return status }
+   return status; }
 #else
 #define CHECKSTRICT(status) if (EFI_ERROR(status)) { \
-   return status }
+   return status; }
 #endif
 
 #define EXT2_VOLUME_SIGNATURE SIGNATURE_32 ('e', 'x', 't', 'v')
@@ -61,5 +66,49 @@ struct EXT2_FILE
 {
 
 };
+
+/*=== Function Prototypes [Ext2.c] ==========================================*/
+
+EFI_STATUS EFIAPI
+DriverEntry (
+   IN EFI_HANDLE       ImageHandle,
+   IN EFI_SYSTEM_TABLE *SystemTable
+);
+
+EFI_STATUS EFIAPI
+DriverUnload (
+   IN EFI_HANDLE ImageHandle
+);
+
+EFI_STATUS EFIAPI
+DriverBindingSupported (
+   IN EFI_DRIVER_BINDING_PROTOCOL *This,
+   IN EFI_HANDLE                  ControllerHandle,
+   IN EFI_DEVICE_PATH_PROTOCOL    *RemainingDevicePath OPTIONAL
+);
+
+EFI_STATUS EFIAPI
+DriverBindingStart (
+   IN EFI_DRIVER_BINDING_PROTOCOL *This,
+   IN EFI_HANDLE                  ControllerHandle,
+   IN EFI_DEVICE_PATH_PROTOCOL    *RemainingDevicePath OPTIONAL
+);
+
+EFI_STATUS EFIAPI
+DriverBindingStop (
+   IN EFI_DRIVER_BINDING_PROTOCOL *This,
+   IN EFI_HANDLE                  ControllerHandle,
+   IN UINTN                       NumberOfChildren,
+   IN EFI_HANDLE                  *ChildHandleBuffer OPTIONAL
+);
+
+/*=== Global Variables ======================================================*/
+
+extern EFI_DRIVER_BINDING_PROTOCOL     gExt2DriverBinding;
+extern EFI_COMPONENT_NAME_PROTOCOL     gExt2ComponentName;
+extern EFI_COMPONENT_NAME2_PROTOCOL    gExt2ComponentName2;
+
+extern EFI_SIMPLE_FILE_SYSTEM_PROTOCOL gExt2SimpleFileSystem;
+extern EFI_FILE_PROTOCOL               gExt2File;
 
 #endif // __EFI_DRV_EXT2_H__
