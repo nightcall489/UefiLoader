@@ -1,0 +1,21 @@
+[Defines]
+  INF_VERSION     = 0x00010005
+  BASE_NAME       = Ext2
+  FILE_GUID       = e960bf69-62ed-47b8-bc2b-77689e091bf6
+  MODULE_TYPE     = UEFI_DRIVER
+  VERSION_STRING  = 1.0
+  ENTRY_POINT     = DriverEntry
+
+[Sources]
+   Ext2.c
+
+[Packages]
+   MdePkg/MdePkg.dec
+
+[LibraryClasses]
+   UefiDriverEntryPoint
+   UefiLib
+
+[Protocols]
+
+[Guids]

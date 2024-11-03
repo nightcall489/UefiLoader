@@ -1,0 +1,5 @@
+[Defines]
+   DEC_SPECIFICATION    = 0x00010005
+   PACKAGE_NAME         = UefiLoader
+   PACKAGE_GUID         = 24e8f9b7-9804-40c0-a2cf-4e9f0885dc9b
+   PACKAGE_VERSION      - 0.1
