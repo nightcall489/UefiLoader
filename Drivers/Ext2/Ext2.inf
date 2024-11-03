@@ -8,6 +8,7 @@
 
 [Sources]
    Ext2.c
+   Misc.c
 
 [Packages]
    MdePkg/MdePkg.dec

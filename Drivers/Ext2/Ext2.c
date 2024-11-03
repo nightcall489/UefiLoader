@@ -6,17 +6,17 @@
  * Created: Nov 03, 2024
 \*===========================================================================*/
 
-/*=== Includes ==============================================================*/
+/*==- Includes -=============================================================*/
 
 #include "Ext2.h"
 
-/*=== Global Variables ======================================================*/
+/*==- Global Variables -=====================================================*/
 
 EFI_DRIVER_BINDING_PROTOCOL gExt2DriverBinding = {
    DriverBindingSupported,
    DriverBindingStart,
    DriverBindingStop,
-   0xa,
+   0x10,
    NULL,
    NULL
 };
@@ -36,6 +36,9 @@ EFI_SIMPLE_FILE_SYSTEM_PROTOCOL gExt2SimpleFileSystem = {
 EFI_FILE_PROTOCOL gExt2File = {
 
 };
+
+EFI_LOCK gExt2ShortLock = EFI_INITIALIZE_LOCK_VARIABLE (TPL_NOTIFY);
+EFI_LOCK gExt2LongLock  = EFI_INITIALIZE_LOCK_VARIABLE (TPL_CALLBACK);
 
 /*=============================================================================
  * Function: DriverEntry
@@ -116,8 +119,7 @@ DriverBindingSupported (
          ControllerHandle,
          EFI_OPEN_PROTOCOL_BY_DRIVER
    );
-   if (EFI_ERROR(Status))
-      return Status;
+   CHECKSTRICT (Status);
 
    /* Error checks aren't necessary, as all errors are parameter related. */
    gBS->CloseProtocol (
@@ -159,6 +161,10 @@ DriverBindingStart (
    IN EFI_HANDLE                  ControllerHandle,
    IN EFI_DEVICE_PATH_PROTOCOL    *RemainingDevicePath OPTIONAL)
 {
+   AcquireLock ();
+
+   ReleaseLock ();
+
    return EFI_SUCCESS;
 }
 

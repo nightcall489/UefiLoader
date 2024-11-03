@@ -102,6 +102,23 @@ DriverBindingStop (
    IN EFI_HANDLE                  *ChildHandleBuffer OPTIONAL
 );
 
+/*=== Function Prototypes [Data.c] ==========================================*/
+
+VOID
+AcquireLock (
+   VOID
+);
+
+EFI_STATUS
+AcquireLockOrFail (
+   VOID
+);
+
+VOID
+ReleaseLock (
+   VOID
+);
+
 /*=== Global Variables ======================================================*/
 
 extern EFI_DRIVER_BINDING_PROTOCOL     gExt2DriverBinding;
@@ -110,5 +127,8 @@ extern EFI_COMPONENT_NAME2_PROTOCOL    gExt2ComponentName2;
 
 extern EFI_SIMPLE_FILE_SYSTEM_PROTOCOL gExt2SimpleFileSystem;
 extern EFI_FILE_PROTOCOL               gExt2File;
+
+extern EFI_LOCK                        gExt2ShortLock;
+extern EFI_LOCK                        gExt2LongLock;
 
 #endif // __EFI_DRV_EXT2_H__
