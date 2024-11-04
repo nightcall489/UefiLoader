@@ -43,7 +43,11 @@
 #define EXT2_DIR_SIGNATURE    SIGNATURE_32 ('e', 'x', 't', 'd')
 #define EXT2_FILE_SIGNATURE   SIGNATURE_32 ('e', 'x', 't', 'f')
 
-#define EXT2_PATH_SEPARATOR '/'
+#define VOLUME_FROM_INTERFACE(a) \
+   CR (a, EXT2_VOLUME, Interface, EXT2_VOLUME_SIGNATURE)
+
+#define FILE_FROM_INTERFACE(a) \
+   CR (a, EXT2_FILE, Interface, EXT2_FILE_SIGNATURE)
 
 /*=== Structures ============================================================*/
 
@@ -86,6 +90,8 @@ struct _EXT2_FILE
 
    EXT2_VOLUME       *Volume;
    EXT2_FILE         *Parent;
+
+   UINT32            Position;
    UINT32            RefCount;
 };
 

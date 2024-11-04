@@ -72,4 +72,55 @@ size_assert(EXT2_SUPERBLOCK, 1024);
 #define EXT2_SUPER_OFFSET  1024
 #define EXT2_SUPER_MAGIC   0xEF53
 
+/*==- Inode -================================================================*/
+
+typedef struct
+{
+   UINT16 i_mode;
+   UINT16 i_uid;
+   UINT32 i_size;
+   UINT32 i_atime;
+   UINT32 i_ctime;
+   UINT32 i_mtime;
+   UINT32 i_dtime;
+   UINT16 i_gid;
+   UINT16 i_links_count;
+   UINT32 i_blocks;
+   UINT32 i_flags;
+   UINT32 i_osd1;
+   UINT32 i_block[15];
+   UINT32 i_generation;
+   UINT32 i_file_acl;
+   UINT32 i_dir_acl;
+   UINT32 i_faddr;
+   CHAR8  i_osd2[12];
+} EXT2_INODE;
+
+/* calculate index of last reserved i_block block */
+#define i_block_max_index(i_blocks, s_log_block_size) \
+   i_blocks / (2 << s_log_block_size)
+
+/* calculate true file size (revision agnostic) */
+#define i_true_size(inode, rev) \
+   ((rev) > 0 ? \
+      (((UINT64)((inode)->i_dir_acl) << 32) | (UINT64)((inode)->i_size)) : \
+      (UINT64)((inode)->i_size))
+
+/* reserved inode values */
+#define EXT2_BAD_INO          1
+#define EXT2_ROOT_INO         2
+#define EXT2_ACL_IDX_INO      3
+#define EXT2_ACL_DATA_INO     4
+#define EXT2_BOOT_LOADER_INO  5
+#define EXT2_UNDEL_DIR_INO    6
+
+/* i_mode file format */
+#define EXT2_S_IFSOCK 0xC000 /* socket */
+#define EXT2_S_IFLNK  0xA000 /* symbolic link */
+#define EXT2_S_IFREG  0x8000 /* regular file */
+#define EXT2_S_IFBLK  0x6000 /* block device */
+#define EXT2_S_IFDIR  0x4000 /* directory */
+#define EXT2_S_IFCHR  0x2000 /* character device */
+#define EXT2_S_IFIFO  0x1000 /* fifo */
+
 #endif // __EFI_EXT2_SPEC_H__
