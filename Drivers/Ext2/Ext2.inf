@@ -12,6 +12,7 @@
    Init.c
    Open.c
    Read.c
+   File.c
 
 [Packages]
    MdePkg/MdePkg.dec

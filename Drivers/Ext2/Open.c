@@ -32,5 +32,27 @@ Ext2OpenVolume (
    IN EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *This,
    OUT EFI_FILE_PROTOCOL              **Root)
 {
+   EFI_STATUS  Status;
+   EXT2_VOLUME *Volume;
+   EXT2_FILE   *RootFile;
+
+   if (Root == NULL)
+   {
+      return EFI_INVALID_PARAMETER;
+   }
+
+   Volume = VOLUME_FROM_INTERFACE (This);
+   if (Volume == NULL)
+   {
+      return EFI_DEVICE_ERROR;
+   }
+
+   if (Volume->RootDir == NULL)
+   {
+      // Allocate new root file
+   }
+
+   return Volume->RootDir;
+
    return EFI_SUCCESS;
 }
