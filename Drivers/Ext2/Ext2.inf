@@ -9,6 +9,9 @@
 [Sources]
    Ext2.c
    Misc.c
+   Init.c
+   Open.c
+   Read.c
 
 [Packages]
    MdePkg/MdePkg.dec

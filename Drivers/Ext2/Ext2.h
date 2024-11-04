@@ -9,27 +9,26 @@
 #ifndef __EFI_DRV_EXT2_H__
 #define __EFI_DRV_EXT2_H__
 
-/*=== Includes ==============================================================*/
+/*==- Includes -=============================================================*/
+
+#include "Spec.h"
 
 #include <Uefi.h>
 
 #include <Library/UefiLib.h>
 #include <Library/UefiDriverEntryPoint.h>
 #include <Library/UefiBootServicesTableLib.h>
+#include <Library/BaseMemoryLib.h>
+#include <Library/MemoryAllocationLib.h>
 
 #include <Protocol/DiskIo.h>
 #include <Protocol/DiskIo2.h>
 #include <Protocol/BlockIo.h>
 
-/*=== Macros and Constants ==================================================*/
-
-#ifndef size_assert
-#define size_assert( obj, size ) \
-   typedef char obj##_size_off_[ ( !! ( sizeof( obj ) == size ) ) * 2 - 1 ]
-#endif
+/*==- Macros and Constants -=================================================*/
 
 #define ERRPRINT(status) \
-   Print("Err: %r at %a:%d\n", status, __FILE__, __LINE__)
+   Print("Err: %r at %a:%d\n", status, __func__, __LINE__)
 
 #ifdef DEBUG
 #define CHECKSTRICT(status) if (EFI_ERROR(status)) { \
@@ -52,19 +51,42 @@ typedef struct _EXT2_VOLUME EXT2_VOLUME;
 typedef struct _EXT2_CFILE EXT2C_FILE;
 typedef struct _EXT2_FILE EXT2_FILE;
 
-struct EXT2_VOLUME
+struct _EXT2_VOLUME
+{
+   UINT32                           Signature;
+   EFI_HANDLE                       Handle;
+   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL  Interface;
+   
+   EFI_BLOCK_IO_PROTOCOL            *BlockIo;
+   EFI_DISK_IO_PROTOCOL             *DiskIo;
+   EFI_DISK_IO2_PROTOCOL            *DiskIo2;
+
+   UINT32                           MediaId;
+   BOOLEAN                          Readonly;
+
+   EXT2_SUPERBLOCK                  *Superblock;
+   UINT32                           InodeSize;
+   UINT32                           BlockSize;
+   UINT32                           FragSize;
+   UINT32                           VolSize;
+   UINT32                           NumBlockGroups;
+
+   EXT2_FILE                        *RootDir;
+};
+
+struct _EXT2_CFILE
 {
 
 };
 
-struct EXT2_CFILE
+struct _EXT2_FILE
 {
+   UINT32            Signature;
+   EFI_FILE_PROTOCOL Interface;
 
-};
-
-struct EXT2_FILE
-{
-
+   EXT2_VOLUME       *Volume;
+   EXT2_FILE         *Parent;
+   UINT32            RefCount;
 };
 
 /*=== Function Prototypes [Ext2.c] ==========================================*/
@@ -102,6 +124,16 @@ DriverBindingStop (
    IN EFI_HANDLE                  *ChildHandleBuffer OPTIONAL
 );
 
+/*=== Function Prototypes [Init.c] ==========================================*/
+
+[[nodiscard]] EFI_STATUS
+Ext2MountVolume (
+   IN EFI_HANDLE            DeviceHandle,
+   IN EFI_BLOCK_IO_PROTOCOL *BlockIo,
+   IN EFI_DISK_IO_PROTOCOL  *DiskIo,
+   IN EFI_DISK_IO2_PROTOCOL *DiskIo2
+);
+
 /*=== Function Prototypes [Data.c] ==========================================*/
 
 VOID
@@ -117,6 +149,94 @@ AcquireLockOrFail (
 VOID
 ReleaseLock (
    VOID
+);
+
+/*=== Function Prototypes [Read.c] ==========================================*/
+
+[[nodiscard]] EFI_STATUS
+Ext2ReadDisk (
+   IN EXT2_VOLUME *Volume,
+   IN UINT32      Offset,
+   IN UINT32      BufferSize,
+   OUT VOID       *Buffer
+);
+
+/*=== Function Prototypes [EFI_SIMPLE_FILE_SYSTEM_PROTOCOL] =================*/
+
+EFI_STATUS EFIAPI
+Ext2OpenVolume (                                   /* Open.c */
+   IN EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *This,
+   OUT EFI_FILE_PROTOCOL              **Root
+);
+
+/*=== Function Prototypes [EFI_FILE_PROTOCOL] ===============================*/
+
+EFI_STATUS EFIAPI
+Ext2Open (                                         /* Open.c */
+   IN EFI_FILE_PROTOCOL  *This,
+   OUT EFI_FILE_PROTOCOL **NewHandle,
+   IN CHAR16             *FileName,
+   IN UINT64             OpenMode,
+   IN UINT64             Attributes
+);
+
+EFI_STATUS EFIAPI
+Ext2Close (                                        /* Close.c */
+   IN EFI_FILE_PROTOCOL *This
+);
+
+EFI_STATUS EFIAPI
+Ext2Delete (                                       /* Write.c */
+   IN EFI_FILE_PROTOCOL *This
+);
+
+EFI_STATUS EFIAPI
+Ext2Read (                                         /* Read.c */
+   IN EFI_FILE_PROTOCOL *This,
+   IN OUT UINTN         *BufferSize,
+   OUT VOID             *Buffer
+);
+
+EFI_STATUS EFIAPI
+Ext2Write (                                        /* Write.c */
+   IN EFI_FILE_PROTOCOL *This,
+   IN OUT UINTN         *BufferSize,
+   IN VOID              *Buffer
+);
+
+// OpenEx, ReadEx, WriteEx, FlushEx
+
+EFI_STATUS EFIAPI
+Ext2SetPosition (                                  /* Pos.c */
+   IN EFI_FILE_PROTOCOL *This,
+   IN UINT64            Position
+);
+
+EFI_STATUS EFIAPI
+Ext2GetPosition (                                  /* Pos.c */
+   IN EFI_FILE_PROTOCOL *This,
+   OUT UINT64           *Position
+);
+
+EFI_STATUS EFIAPI
+Ext2GetInfo (                                      /* Info.c */
+   IN EFI_FILE_PROTOCOL *This,
+   IN EFI_GUID          *InformationType,
+   IN OUT UINTN         *BufferSize,
+   OUT VOID             *Buffer
+);
+
+EFI_STATUS EFIAPI
+Ext2SetInfo (                                      /* Info.c */
+   IN EFI_FILE_PROTOCOL *This,
+   IN EFI_GUID          *InformationType,
+   IN UINTN             BufferSize,
+   IN VOID              *Buffer
+);
+
+EFI_STATUS EFIAPI
+Ext2Flush (                                        /* Write.c */
+   IN EFI_FILE_PROTOCOL *This
 );
 
 /*=== Global Variables ======================================================*/

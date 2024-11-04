@@ -30,7 +30,8 @@ EFI_COMPONENT_NAME2_PROTOCOL gExt2ComponentName2 = {
 };
 
 EFI_SIMPLE_FILE_SYSTEM_PROTOCOL gExt2SimpleFileSystem = {
-
+   EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_REVISION,
+   Ext2OpenVolume
 };
 
 EFI_FILE_PROTOCOL gExt2File = {
@@ -161,11 +162,45 @@ DriverBindingStart (
    IN EFI_HANDLE                  ControllerHandle,
    IN EFI_DEVICE_PATH_PROTOCOL    *RemainingDevicePath OPTIONAL)
 {
-   AcquireLock ();
+   EFI_STATUS              Status;
+   EFI_BLOCK_IO_PROTOCOL   *BlockIo;
+   EFI_DISK_IO_PROTOCOL    *DiskIo;
+   EFI_DISK_IO2_PROTOCOL   *DiskIo2;
 
-   ReleaseLock ();
+   Status = gBS->OpenProtocol (
+      ControllerHandle,
+      &gEfiBlockIoProtocolGuid,
+      (VOID **)&BlockIo,
+      This->DriverBindingHandle,
+      ControllerHandle,
+      EFI_OPEN_PROTOCOL_GET_PROTOCOL
+   );
+   CHECKSTRICT (Status);
 
-   return EFI_SUCCESS;
+   Status = gBS->OpenProtocol (
+      ControllerHandle,
+      &gEfiDiskIoProtocolGuid,
+      (VOID **)&DiskIo,
+      This->DriverBindingHandle,
+      ControllerHandle,
+      EFI_OPEN_PROTOCOL_BY_DRIVER
+   );
+   CHECKSTRICT (Status);
+
+   Status = gBS->OpenProtocol (
+      ControllerHandle,
+      &gEfiDiskIo2ProtocolGuid,
+      (VOID **)&DiskIo2,
+      This->DriverBindingHandle,
+      ControllerHandle,
+      EFI_OPEN_PROTOCOL_BY_DRIVER
+   );
+   if (EFI_ERROR (Status))
+   {
+      DiskIo2 = NULL;
+   }
+
+   return Ext2MountVolume (ControllerHandle, BlockIo, DiskIo, DiskIo2);
 }
 
 /*=============================================================================
