@@ -67,7 +67,7 @@ typedef struct
    UINT32 s_first_meta_bg;
    UINT8  reserved_2[760];
 } EXT2_SUPERBLOCK;
-size_assert(EXT2_SUPERBLOCK, 1024);
+size_assert (EXT2_SUPERBLOCK, 1024);
 
 #define EXT2_SUPER_OFFSET  1024
 #define EXT2_SUPER_MAGIC   0xEF53
@@ -122,5 +122,45 @@ typedef struct
 #define EXT2_S_IFDIR  0x4000 /* directory */
 #define EXT2_S_IFCHR  0x2000 /* character device */
 #define EXT2_S_IFIFO  0x1000 /* fifo */
+
+/* i_flags values */
+#define EXT2_APPEND_FL 	0x00000020 /* append only */
+#define EXT2_INDEX_FL   0x00001000 /* hash indexed directory */
+
+/*==- Block Group Descriptor -===============================================*/
+
+typedef struct
+{
+   UINT32 bg_block_bitmap;
+   UINT32 bg_inode_bitmap;
+   UINT32 bg_inode_table;
+   UINT16 bg_free_blocks_count;
+   UINT16 bg_free_inodes_count;
+   UINT16 bg_used_dirs_count;
+   UINT16 bg_pad;
+   UINT8  bg_reserved[12];
+} EXT2_BLOCK_GROUP_DESCRIPTOR;
+size_assert (EXT2_BLOCK_GROUP_DESCRIPTOR, 32);
+
+/*==- Directory Entry -======================================================*/
+
+typedef struct
+{
+   UINT32 inode;
+   UINT16 rec_len;
+   UINT8  name_len;
+   UINT8  file_type;
+   CHAR8  name[0];
+} EXT2_DIRECTORY_ENTRY;
+
+/* inode file type values */
+#define EXT2_FT_UNKNOWN    0
+#define EXT2_FT_REG_FILE   1
+#define EXT2_FT_DIR        2
+#define EXT2_FT_CHRDEV     3
+#define EXT2_FT_BLKDEV     4
+#define EXT2_FT_FIFO       5
+#define EXT2_FT_SOCK       6
+#define EXT2_FT_SYMLINK    7
 
 #endif // __EFI_EXT2_SPEC_H__

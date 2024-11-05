@@ -16,6 +16,8 @@
 #include <Uefi.h>
 
 #include <Library/UefiLib.h>
+#include <Library/BaseLib.h>
+#include <Library/DebugLib.h>
 #include <Library/UefiDriverEntryPoint.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/BaseMemoryLib.h>
@@ -28,11 +30,11 @@
 /*==- Macros and Constants -=================================================*/
 
 #define ERRPRINT(status) \
-   Print("Err: %r at %a:%d\n", status, __func__, __LINE__)
+   Print(L"Err: %r at %a:%d\n", status, __func__, __LINE__)
 
 #ifdef DEBUG
 #define CHECKSTRICT(status) if (EFI_ERROR(status)) { \
-   ErrPrint (status); \
+   ERRPRINT (status); \
    return status; }
 #else
 #define CHECKSTRICT(status) if (EFI_ERROR(status)) { \
@@ -50,6 +52,11 @@
    CR (a, EXT2_FILE, Interface, EXT2_FILE_SIGNATURE)
 
 /*=== Structures ============================================================*/
+
+typedef struct
+{
+
+} EXT2_BGD_CACHE_ENTRY;
 
 typedef struct _EXT2_VOLUME EXT2_VOLUME;
 typedef struct _EXT2_CFILE EXT2C_FILE;
@@ -76,7 +83,15 @@ struct _EXT2_VOLUME
    UINT32                           NumBlockGroups;
 
    EXT2_FILE                        *RootDir;
+
+
 };
+
+typedef struct
+{
+   UINT8 Index;
+   UINT8 *Data;
+} EXT2_DIR_CACHE_ENTRY;
 
 struct _EXT2_CFILE
 {
@@ -85,14 +100,16 @@ struct _EXT2_CFILE
 
 struct _EXT2_FILE
 {
-   UINT32            Signature;
-   EFI_FILE_PROTOCOL Interface;
+   UINT32               Signature;
+   EFI_FILE_PROTOCOL    Interface;
 
-   EXT2_VOLUME       *Volume;
-   EXT2_FILE         *Parent;
+   EXT2_VOLUME          *Volume;
+   EXT2_INODE           *Inode;
+   EXT2_FILE            *Parent;
 
-   UINT32            Position;
-   UINT32            RefCount;
+   EXT2_DIR_CACHE_ENTRY BlockCache;
+   UINT32               Position;
+   UINT32               RefCount;
 };
 
 /*=== Function Prototypes [Ext2.c] ==========================================*/
@@ -165,6 +182,13 @@ Ext2ReadDisk (
    IN UINT32      Offset,
    IN UINT32      BufferSize,
    OUT VOID       *Buffer
+);
+
+/*=== Function Prototypes [File.c] ==========================================*/
+
+[[nodiscard]] BOOLEAN
+Ext2IsDir (
+   IN EXT2_FILE *File
 );
 
 /*=== Function Prototypes [EFI_SIMPLE_FILE_SYSTEM_PROTOCOL] =================*/
