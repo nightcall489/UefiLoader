@@ -192,6 +192,7 @@ Ext2ReadSymlink (
    }
 
    Buffer = Target;
+   return EFI_SUCCESS;
 }
 
 /*=============================================================================
@@ -269,7 +270,7 @@ Ext2ReadDirEnt (
 
    Buffer = Entry;
    return EFI_SUCCESS;
-
+}
 
 /*=============================================================================
  * Function: Ext2Read
@@ -299,5 +300,14 @@ Ext2Read (
       return EFI_VOLUME_CORRUPTED;
    }
 
-   if (Ext2IsDir ())
+   if (Ext2IsDir (File))
+   {
+      /* dir read logic */
+   }
+   else
+   {
+      /* file read logic */
+   }
+
+   return EFI_SUCCESS; 
 }

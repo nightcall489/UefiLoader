@@ -83,8 +83,6 @@ struct _EXT2_VOLUME
    UINT32                           NumBlockGroups;
 
    EXT2_FILE                        *RootDir;
-
-
 };
 
 typedef struct
